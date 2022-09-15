@@ -1,0 +1,54 @@
+//
+//  AddWorkoutView.swift
+//  REDUX
+//
+//  Created by Sergiy Sobol on 28.06.2022.
+//
+
+import SwiftUI
+
+struct AddWorkoutView: View {
+    @EnvironmentObject private var viewModel: WorkoutViewModel
+    
+    @State private var nameText: String = ""
+    @State private var distanceText: String = ""
+    @State private var complexityField: Complexity = .medium
+    @State private var dateField: Date = Date()
+    @Binding var isAddingMode: Bool
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                TextField("Name", text: $nameText)
+                TextField("Distance", text: $distanceText)
+                Picker(selection: $complexityField, label: Text("Complexity")) {
+                    Text("Low").tag(Complexity.low)
+                    Text("Medium").tag(Complexity.medium)
+                    Text("High").tag(Complexity.high)
+                }
+                DatePicker(selection: $dateField, displayedComponents: .date) {
+                    Text("Date")
+                }
+            }
+            .navigationBarTitle("Workout Details", displayMode: .inline)
+            .navigationBarItems(
+                leading: Button(action: { self.isAddingMode = false }) {
+                    Text("Cancel")
+                },
+                trailing: Button(action: {
+                    let workout = Workout(
+                        name: self.nameText,
+                        distance: self.distanceText,
+                        date: self.dateField,
+                        complexity: self.complexityField
+                    )
+                    viewModel.trigger(.addWorkout(workout))
+                    self.isAddingMode = false
+                }) {
+                    Text("Save")
+                }
+                .disabled(nameText.isEmpty)
+            )
+        }
+    }
+}
